@@ -426,13 +426,16 @@ AhciEnableFisReceive (
   Offset = EFI_AHCI_PORT_START + Port * EFI_AHCI_PORT_REG_WIDTH + EFI_AHCI_PORT_CMD;
   AhciOrReg (PciIo, Offset, EFI_AHCI_PORT_CMD_FRE);
 
-  return AhciWaitMmioSet (
+#if 0 /* Marvell 9235 never sets that bit */
+  AhciWaitMmioSet (
            PciIo,
            Offset,
            EFI_AHCI_PORT_CMD_FR,
            EFI_AHCI_PORT_CMD_FR,
            Timeout
            );
+#endif
+  return EFI_SUCCESS;
 }
 
 /**
@@ -1416,6 +1419,39 @@ AhciPortReset (
   return EFI_SUCCESS;
 }
 
+EFI_STATUS
+EFIAPI
+AhciEnable (
+  IN  EFI_PCI_IO_PROTOCOL       *PciIo
+  )
+{
+  UINT64                 MaxTries = 5;
+  UINT32                 Value;
+
+  Value = AhciReadReg (PciIo, EFI_AHCI_GHC_OFFSET);
+  DEBUG((EFI_D_INFO, "AHCI Enable GHC: %08x\n", Value));
+
+  if (Value & EFI_AHCI_GHC_ENABLE) {
+    return EFI_SUCCESS;
+  }
+
+  while(MaxTries--) {
+    AhciOrReg (PciIo, EFI_AHCI_GHC_OFFSET, EFI_AHCI_GHC_ENABLE);
+
+    Value = AhciReadReg (PciIo, EFI_AHCI_GHC_OFFSET);
+    if (Value & EFI_AHCI_GHC_ENABLE) {
+      DEBUG((EFI_D_INFO, "AHCI Enable GHC: %08x (Tries: %d)\n", Value, MaxTries));
+      return EFI_SUCCESS;
+    }
+    if (MaxTries) {
+      MicroSecondDelay(10000);
+    }
+  }
+  DEBUG((EFI_D_ERROR, "AHCI Enable Timeout !\n"));
+  return EFI_TIMEOUT;
+}
+
+
 /**
   Do AHCI HBA reset.
 
@@ -1436,18 +1472,14 @@ AhciReset (
 {
   UINT64                 Delay;
   UINT32                 Value;
-  UINT32                 Capability;
-
-  //
-  // Collect AHCI controller information
-  //
-  Capability = AhciReadReg (PciIo, EFI_AHCI_CAPABILITY_OFFSET);
+  EFI_STATUS		 Status;
   
   //
   // Enable AE before accessing any AHCI registers if Supports AHCI Mode Only is not set
   //
-  if ((Capability & EFI_AHCI_CAP_SAM) == 0) {
-    AhciOrReg (PciIo, EFI_AHCI_GHC_OFFSET, EFI_AHCI_GHC_ENABLE);
+  Status = AhciEnable (PciIo);
+  if (EFI_ERROR (Status)) {
+    return Status;
   }
 
   AhciOrReg (PciIo, EFI_AHCI_GHC_OFFSET, EFI_AHCI_GHC_RESET);
@@ -2259,8 +2291,9 @@ AhciModeInitialization (
   //
   // Enable AE before accessing any AHCI registers if Supports AHCI Mode Only is not set
   //
-  if ((Capability & EFI_AHCI_CAP_SAM) == 0) {
-    AhciOrReg (PciIo, EFI_AHCI_GHC_OFFSET, EFI_AHCI_GHC_ENABLE);
+  Status = AhciEnable (PciIo);
+  if (EFI_ERROR (Status)) {
+    return Status;
   }
   
   //
@@ -2342,6 +2375,7 @@ AhciModeInitialization (
       //
       Offset = EFI_AHCI_PORT_START + Port * EFI_AHCI_PORT_REG_WIDTH + EFI_AHCI_PORT_CMD;
       AhciOrReg (PciIo, Offset, EFI_AHCI_PORT_CMD_FRE);
+#if 0 /* Marvell 9235 never sets that bit */
       Status = AhciWaitMmioSet (
                  PciIo,
                  Offset,
@@ -2352,6 +2386,7 @@ AhciModeInitialization (
       if (EFI_ERROR (Status)) {
         continue;
       }
+#endif
 
       //
       // Wait no longer than 10 ms to wait the Phy to detect the presence of a device.
