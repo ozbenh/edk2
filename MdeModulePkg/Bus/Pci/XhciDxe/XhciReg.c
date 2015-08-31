@@ -680,6 +680,7 @@ XhcResetHC (
     Status = XhcHaltHC (Xhc, Timeout);
 
     if (EFI_ERROR (Status)) {
+      DEBUG((EFI_D_ERROR, "XHCI: Error halting HC: %r\n", Status));
       return Status;
     }
   }

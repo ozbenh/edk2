@@ -1887,6 +1887,7 @@ XhcExitBootService (
 {
   USB_XHCI_INSTANCE    *Xhc;
   EFI_PCI_IO_PROTOCOL  *PciIo;
+  EFI_STATUS Status;
 
   Xhc = (USB_XHCI_INSTANCE*) Context;
   PciIo = Xhc->PciIo;
@@ -1896,7 +1897,16 @@ XhcExitBootService (
   // and uninstall the XHCI protocl.
   //
   gBS->SetTimer (Xhc->PollTimer, TimerCancel, 0);
-  XhcHaltHC (Xhc, XHC_GENERIC_TIMEOUT);
+  Status = XhcHaltHC (Xhc, XHC_GENERIC_TIMEOUT/10 /* XXX TI HACK */);
+  if (EFI_ERROR (Status)) {
+    DEBUG((EFI_D_ERROR, "XHCI: Error halting HC: %r\n", Status));
+  }
+
+  //
+  // XXX HACK: Work around qemu bug with halt, just reset it
+  //
+  Status = XhcResetHC (Xhc, XHC_RESET_TIMEOUT);
+  ASSERT (!(XHC_REG_BIT_IS_SET (Xhc, XHC_USBSTS_OFFSET, XHC_USBSTS_CNR)));
 
   if (Xhc->PollTimer != NULL) {
     gBS->CloseEvent (Xhc->PollTimer);
