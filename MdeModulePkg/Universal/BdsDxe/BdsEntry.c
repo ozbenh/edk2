@@ -144,7 +144,7 @@ BdsEnumerateBootOptions (
 {
   EFI_STATUS                            Status;
   EFI_BOOT_MANAGER_LOAD_OPTION          *BootOptions;
-  UINT16                                NonBlockNumber;
+  //UINT16                                NonBlockNumber;
   UINTN                                 HandleCount;
   EFI_HANDLE                            *Handles;
   EFI_BLOCK_IO_PROTOCOL                 *BlkIo;
@@ -220,7 +220,7 @@ BdsEnumerateBootOptions (
   //
   // Parse simple file system not based on block io
   //
-  NonBlockNumber = 0;
+  //NonBlockNumber = 0;
   gBS->LocateHandleBuffer (
          ByProtocol,
          &gEfiSimpleFileSystemProtocolGuid,

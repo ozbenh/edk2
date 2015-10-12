@@ -40,7 +40,7 @@ PrePeiGetHobList (
   )
 {
   if (gHobList == NULL) {
-    return (VOID *)*(UINTN*)PcdGet32 (PcdPrePiHobBase);
+    return (VOID *)*(UINTN*)(UINTN)PcdGet32 (PcdPrePiHobBase);
   } else {
     return gHobList;
   }

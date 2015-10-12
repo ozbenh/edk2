@@ -1130,6 +1130,8 @@ PeCoffLoaderRelocateImage (
           break;
 
         case EFI_IMAGE_REL_BASED_DIR64:
+	  //DEBUG((DEBUG_INIT, "* REL_DIR64, Fixup=%p, Adjust=0x%llx, FixupData=%p, *Fixup=0x%llx\n",
+	  //	   Fixup, Adjust, FixupData, *(UINT64 *)Fixup));
           Fixup64 = (UINT64 *) Fixup;
           *Fixup64 = *Fixup64 + (UINT64) Adjust;
           if (FixupData != NULL) {

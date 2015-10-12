@@ -67,9 +67,11 @@ QemuVideoCompleteModeData (
                         (VOID**) &FrameBufDesc
                         );
 
-  Mode->FrameBufferBase = FrameBufDesc->AddrRangeMin;
+  Mode->FrameBufferBase = FrameBufDesc->AddrRangeMin + FrameBufDesc->AddrTranslationOffset;
   Mode->FrameBufferSize = Info->HorizontalResolution * Info->VerticalResolution;
   Mode->FrameBufferSize = Mode->FrameBufferSize * ((ModeData->ColorDepth + 7) / 8);
+  DEBUG ((EFI_D_INFO, "Desc->Base     : 0x%Lx, Desc->Offset   : 0x%Lx\n",
+	  FrameBufDesc->AddrRangeMin, FrameBufDesc->AddrTranslationOffset));
   DEBUG ((EFI_D_INFO, "FrameBufferBase: 0x%Lx, FrameBufferSize: 0x%Lx\n",
     Mode->FrameBufferBase, (UINT64)Mode->FrameBufferSize));
 
@@ -201,6 +203,7 @@ Routine Description:
 
   QemuVideoCompleteModeData (Private, This->Mode);
 
+  DEBUG((EFI_D_INFO, "Configuring FB@ %p\n", This->Mode->FrameBufferBase));
   BltLibConfigure (
     (VOID*)(UINTN) This->Mode->FrameBufferBase,
     This->Mode->Info

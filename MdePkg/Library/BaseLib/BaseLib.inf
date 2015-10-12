@@ -25,7 +25,7 @@
   LIBRARY_CLASS                  = BaseLib 
 
 #
-#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC ARM AARCH64
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC ARM AARCH64 PPC64
 #
 
 [Sources]
@@ -494,6 +494,13 @@
   AArch64/GetInterruptsState.S      | GCC
   AArch64/SetJumpLongJump.S         | GCC
   AArch64/CpuBreakpoint.S           | GCC
+
+[Sources.PPC64]
+  Unaligned.c
+  Math64.c
+  Ppc64/SwitchStack.S               | GCC
+  Ppc64/SetJumpLongJump.S           | GCC
+  Ppc64/CpuBreakpoint.S             | GCC
 
 [Packages]
   MdePkg/MdePkg.dec

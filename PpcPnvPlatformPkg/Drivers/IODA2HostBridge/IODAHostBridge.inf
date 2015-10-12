@@ -1,0 +1,63 @@
+## @file
+#  The basic interfaces implementation to a single segment PCI Host Bridge driver.
+#
+#  Copyright 2015, IBM Corp. All rights reserved.<BR>
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PciHostBridge
+  FILE_GUID                      = bcf0a4d6-4a05-40eb-899f-3d9ff4bd7ce5
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+
+  ENTRY_POINT                    = InitializePciHostBridge
+
+[Packages]
+  MdePkg/MdePkg.dec
+  PpcPnvPlatformPkg/PpcPnvPlatformPkg.dec
+  PpcPkg/PpcPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  DxeServicesTableLib
+  UefiLib
+  MemoryAllocationLib
+  BaseMemoryLib
+  BaseLib
+  DebugLib
+  DevicePathLib
+  IoLib
+  PcdLib
+  PpcLib
+  PnvOpalLib
+  HobLib
+  FdtLib
+
+[Sources]
+  IODAHostBridge.c
+  IODARootBridgeIo.c
+
+[Protocols]
+  gEfiPciHostBridgeResourceAllocationProtocolGuid       ## PRODUCES
+  gEfiPciRootBridgeIoProtocolGuid                       ## PRODUCES
+  gEfiMetronomeArchProtocolGuid                         ## CONSUMES
+  gEfiDevicePathProtocolGuid                            ## PRODUCES
+
+[Pcd]
+
+[FeaturePcd]
+
+[depex]
+  gEfiMetronomeArchProtocolGuid AND
+  gEfiCpuArchProtocolGuid

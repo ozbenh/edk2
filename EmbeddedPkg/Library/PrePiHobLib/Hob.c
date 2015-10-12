@@ -172,6 +172,8 @@ BuildResourceDescriptorHob (
   Hob->ResourceAttribute = ResourceAttribute;
   Hob->PhysicalStart     = PhysicalStart;
   Hob->ResourceLength    = NumberOfBytes;
+  DEBUG((DEBUG_INIT, "BuildResouceDescriptorHob: %x,%lx,%lx\n",
+	 ResourceType, PhysicalStart,NumberOfBytes));
 }
 
 /**

@@ -1,0 +1,52 @@
+#/** @file
+# ARM processor package.
+#
+# Copyright 2015, IBM Corp. All rights reserved.
+#
+#    This program and the accompanying materials
+#    are licensed and made available under the terms and conditions of the BSD License
+#    which accompanies this distribution. The full text of the license may be found at
+#    http://opensource.org/licenses/bsd-license.php
+#
+#    THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#**/
+
+[Defines]
+  DEC_SPECIFICATION              = 0x00010005
+  PACKAGE_NAME                   = PpcPkg
+  PACKAGE_GUID                   = 572A56176-718B-4995-B6F6-CCEA6FE92B9B
+  PACKAGE_VERSION                = 0.1
+
+################################################################################
+#
+# Include Section - list of Include Paths that are provided by this package.
+#                   Comments are used for Keywords and Module Types.
+#
+# Supported Module Types:
+#  BASE SEC PEI_CORE PEIM DXE_CORE DXE_DRIVER DXE_RUNTIME_DRIVER DXE_SMM_DRIVER DXE_SAL_DRIVER UEFI_DRIVER UEFI_APPLICATION
+#
+################################################################################
+[Includes.common]
+  Include                        # Root include for the package
+
+[LibraryClasses.common]
+   PpcLib|Include/Library/PpcLib.h
+#  DefaultExceptionHandlerLib|Include/Library/DefaultExceptionHandlerLib.h
+
+[Guids.common]
+  gPpcTokenSpaceGuid       = { 0x3FC34F96, 0xAF0F, 0x44EB, { 0xBA, 0x2B, 0x87, 0x10, 0x8D, 0x5A, 0x61, 0x34 } }
+
+[Ppis]
+
+[Protocols.common]
+
+[PcdsFeatureFlag.common]
+  gPpcTokenSpaceGuid.PcdCpuDxeProduceDebugSupport|FALSE|BOOLEAN|0x00000001
+
+[PcdsFixedAtBuild.common]
+
+[PcdsFixedAtBuild.common, PcdsPatchableInModule.common]
+
+[PcdsFixedAtBuild.PPC64]

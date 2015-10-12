@@ -55,6 +55,9 @@
 [Sources.ARM]
   IoLibArm.c
 
+[Sources.PPC64]
+  IoLibPpc.c
+
 [Sources.AARCH64]
   IoLibArm.c
 
@@ -71,3 +74,5 @@
 [Pcd.IPF]
   gEfiMdePkgTokenSpaceGuid.PcdIoBlockBaseAddressForIpf  ## SOMETIMES_CONSUMES
 
+[Pcd.PPC64]
+  gEfiMdePkgTokenSpaceGuid.PcdIoUseCiRmInstructionsPpc64 ## CONSUMES

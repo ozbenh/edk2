@@ -28,8 +28,13 @@
   MdePkg/MdePkg.dec
   OptionRomPkg/OptionRomPkg.dec
 
+[Packages.PPC64]
+  PpcPkg/PpcPkg.dec
+
 [LibraryClasses]
   BltLib
   UefiApplicationEntryPoint
   UefiLib
 
+[LibraryClasses.PPC64]
+  PpcLib

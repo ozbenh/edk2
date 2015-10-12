@@ -1,0 +1,64 @@
+#/** @file
+#
+#  DXE CPU driver
+#
+#  Copyright 2015, IBM Corp. All rights reserved.
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PpcCpuDxe
+  FILE_GUID                      = e0620163-aefb-48e0-9128-0dbaa3a352c0
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+
+  ENTRY_POINT                    = CpuDxeInitialize
+
+[Sources.Common]
+  CpuDxe.c
+  ExceptionHandler.S
+
+[Packages]
+  PpcPkg/PpcPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+
+[LibraryClasses]
+  PpcLib
+  BaseMemoryLib
+  CacheMaintenanceLib
+  CpuLib
+  DebugLib
+  PnvOpalLib
+#  DefaultExceptionHandlerLib
+  DxeServicesTableLib
+  HobLib
+  PeCoffGetEntryPointLib
+  UefiDriverEntryPoint
+  UefiLib
+
+[Protocols]
+  gEfiCpuArchProtocolGuid
+  gEfiDebugSupportPeriodicCallbackProtocolGuid
+#  gVirtualUncachedPagesProtocolGuid
+
+[Guids]
+  gEfiDebugImageInfoTableGuid
+  gIdleLoopEventGuid
+
+[Pcd.common]
+
+[FeaturePcd.common]
+
+[Depex]
+  TRUE

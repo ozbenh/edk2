@@ -119,6 +119,7 @@ typedef struct {
 
   UINT8                                 *LineBuffer;
   QEMU_VIDEO_VARIANT                    Variant;
+  CHAR8                                 MmioBarIdx;
 } QEMU_VIDEO_PRIVATE_DATA;
 
 ///
@@ -206,6 +207,14 @@ extern EFI_DRIVER_SUPPORTED_EFI_VERSION_PROTOCOL  gQemuVideoDriverSupportedEfiVe
 #define VBE_DISPI_8BIT_DAC               0x20
 #define VBE_DISPI_LFB_ENABLED            0x40
 #define VBE_DISPI_NOCLEARMEM             0x80
+
+//
+// Qext regs
+//
+#define PCI_VGA_QEXT_REG_SIZE         0
+#define PCI_VGA_QEXT_REG_BYTEORDER    1
+#define  PCI_VGA_QEXT_LITTLE_ENDIAN   0x1e1e1e1e
+#define  PCI_VGA_QEXT_BIG_ENDIAN      0xbebebebe
 
 //
 // Graphics Output Hardware abstraction internal worker functions
@@ -490,6 +499,19 @@ VgaOutb (
   QEMU_VIDEO_PRIVATE_DATA  *Private,
   UINTN                    Reg,
   UINT8                    Data
+  );
+
+VOID
+QExtWrite (
+  QEMU_VIDEO_PRIVATE_DATA  *Private,
+  UINT16                   Reg,
+  UINT32                   Data
+  );
+
+UINT32
+QExtRead (
+  QEMU_VIDEO_PRIVATE_DATA  *Private,
+  UINT16                   Reg
   );
 
 EFI_STATUS

@@ -66,6 +66,10 @@
   AArch64/CpuFlushTlb.S | GCC
   AArch64/CpuSleep.S    | GCC
 
+[Sources.PPC64]
+  Ppc64/CpuFlushTlb.S | GCC
+  Ppc64/CpuSleep.S    | GCC
+
 [Packages]
   MdePkg/MdePkg.dec
 

@@ -295,7 +295,7 @@ EfiBootManagerGetDriverHealthInfo (
   EFI_STATUS                 Status;
   UINTN                      NumHandles;
   EFI_HANDLE                 *DriverHealthHandles;
-  EFI_DRIVER_HEALTH_STATUS   HealthStatus;
+  //EFI_DRIVER_HEALTH_STATUS   HealthStatus;
   UINTN                      DriverHealthIndex;
   EFI_HANDLE                 *Handles;
   UINTN                      HandleCount;
@@ -313,7 +313,7 @@ EfiBootManagerGetDriverHealthInfo (
   NumHandles              = 0;
   HandleCount             = 0;
 
-  HealthStatus = EfiDriverHealthStatusHealthy;
+  //HealthStatus = EfiDriverHealthStatusHealthy;
 
   Status = gBS->LocateHandleBuffer (
                   ByProtocol,

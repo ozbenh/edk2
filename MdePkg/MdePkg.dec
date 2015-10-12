@@ -47,6 +47,9 @@
 [Includes.AARCH64]
   Include/AArch64
 
+[Includes.PPC64]
+  Include/Ppc64
+
 [LibraryClasses]
   ##  @libraryclass  Provides most usb APIs to support the Hid requests defined in Usb Hid 1.1 spec
   #                  and the standard requests defined in Usb 1.1 spec.
@@ -1958,6 +1961,11 @@
   ## The base address of IO port space for IA64 arch.
   # @Prompt IA64 IO Port Space Base Address.
   gEfiMdePkgTokenSpaceGuid.PcdIoBlockBaseAddressForIpf|0x0ffffc000000|UINT64|0x0000000f
+
+[PcdsFixedAtBuild.PPC64, PcdsPatchableInModule.PPC64, PcdsDynamic.PPC64, PcdsDynamicEx.PPC64]
+  ## Whether to use cache inhibited real mode instructions for MMIO
+  # @Prompt Use PPC64 real mode cache inhibited instructions
+  gEfiMdePkgTokenSpaceGuid.PcdIoUseCiRmInstructionsPpc64|TRUE|BOOLEAN|0x0000002d
 
 [PcdsFixedAtBuild, PcdsPatchableInModule, PcdsDynamic, PcdsDynamicEx]
   ## This value is used to set the base address of PCI express hierarchy.

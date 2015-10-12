@@ -224,6 +224,12 @@ GLOBAL_REMOVE_IF_UNREFERENCED EFI_LOAD_FIXED_ADDRESS_CONFIGURATION_TABLE    gLoa
 
 // Main entry point to the DXE Core
 //
+VOID
+EFIAPI
+PnvOpalLibInit(
+  IN VOID *OpalBase,
+  IN VOID *OpalEntry
+  );
 
 /**
   Main entry point to DXE Core.
@@ -247,6 +253,10 @@ DxeMain (
   EFI_HOB_GUID_TYPE             *GuidHob;
   EFI_VECTOR_HANDOFF_INFO       *VectorInfoList;
   EFI_VECTOR_HANDOFF_INFO       *VectorInfo;
+
+  // DEBUG STUFF... ideally we could use the FDT...
+  PnvOpalLibInit((VOID *)0x30000000, (VOID *)0x300050c0);
+  DEBUG((DEBUG_INIT, "Welcome to DxeMain ! HobStart=%p\n", HobStart));
 
   //
   // Setup the default exception handlers

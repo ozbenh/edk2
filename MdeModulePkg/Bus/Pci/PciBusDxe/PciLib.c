@@ -438,6 +438,8 @@ PciHostBridgeResourceAllocator (
       // If non-stardard PCI Bridge I/O window alignment is supported,
       // set I/O aligment to minimum possible alignment for root bridge.
       //
+      //
+      // XXX Handle no-IO supports
       IoBridge = CreateResourceNode (
                    RootBridgeDev,
                    0,
@@ -1160,22 +1162,28 @@ PciScanBus (
           }
         }
 
-        Status = PciAllocateBusNumber (Bridge, *SubBusNumber, 1, SubBusNumber);
-        if (EFI_ERROR (Status)) {
-          return Status;
-        }
-        SecondBus = *SubBusNumber;
 
-        Register  = (UINT16) ((SecondBus << 8) | (UINT16) StartBusNumber);
-        Address   = EFI_PCI_ADDRESS (StartBusNumber, Device, Func, PCI_BRIDGE_PRIMARY_BUS_REGISTER_OFFSET);
+        if (PcdGetBool(PcdPciPreserveBusNumbers)) {
+          Address = EFI_PCI_ADDRESS (StartBusNumber, Device, Func, PCI_BRIDGE_SECONDARY_BUS_REGISTER_OFFSET);
+	  PciRootBridgeIo->Pci.Read (PciRootBridgeIo, EfiPciIoWidthUint8, Address, 1, &SecondBus);
+	} else {
+          Status = PciAllocateBusNumber (Bridge, *SubBusNumber, 1, SubBusNumber);
+          if (EFI_ERROR (Status)) {
+            return Status;
+          }
+          SecondBus = *SubBusNumber;
 
-        Status = PciRootBridgeIo->Pci.Write (
-                                        PciRootBridgeIo,
-                                        EfiPciWidthUint16,
-                                        Address,
-                                        1,
-                                        &Register
-                                        );
+          Register  = (UINT16) ((SecondBus << 8) | (UINT16) StartBusNumber);
+          Address   = EFI_PCI_ADDRESS (StartBusNumber, Device, Func, PCI_BRIDGE_PRIMARY_BUS_REGISTER_OFFSET);
+
+          Status = PciRootBridgeIo->Pci.Write (
+                                          PciRootBridgeIo,
+                                          EfiPciWidthUint16,
+                                          Address,
+                                          1,
+                                          &Register
+                                          );
+	}
 
 
         //
@@ -1183,19 +1191,21 @@ PciScanBus (
         //
         if (IS_PCI_BRIDGE (&Pci)) {
 
-          //
-          // Temporarily initialize SubBusNumber to maximum bus number to ensure the
-          // PCI configuration transaction to go through any PPB
-          //
-          Register  = 0xFF;
-          Address   = EFI_PCI_ADDRESS (StartBusNumber, Device, Func, PCI_BRIDGE_SUBORDINATE_BUS_REGISTER_OFFSET);
-          Status = PciRootBridgeIo->Pci.Write (
-                                          PciRootBridgeIo,
-                                          EfiPciWidthUint8,
-                                          Address,
-                                          1,
-                                          &Register
-                                          );
+          if (!PcdGetBool(PcdPciPreserveBusNumbers)) {
+            //
+            // Temporarily initialize SubBusNumber to maximum bus number to ensure the
+            // PCI configuration transaction to go through any PPB
+            //
+            Register  = 0xFF;
+            Address   = EFI_PCI_ADDRESS (StartBusNumber, Device, Func, PCI_BRIDGE_SUBORDINATE_BUS_REGISTER_OFFSET);
+            Status = PciRootBridgeIo->Pci.Write (
+                                            PciRootBridgeIo,
+                                            EfiPciWidthUint8,
+                                            Address,
+                                            1,
+                                            &Register
+                                            );
+	  }
 
           //
           // Nofify EfiPciBeforeChildBusEnumeration for PCI Brige
@@ -1219,40 +1229,43 @@ PciScanBus (
           }
         }
 
-        if (FeaturePcdGet (PcdPciBusHotplugDeviceSupport) && BusPadding) {
-          //
-          // Ensure the device is enabled and initialized
-          //
-          if ((Attributes == EfiPaddingPciRootBridge) &&
-              (State & EFI_HPC_STATE_ENABLED) != 0    &&
-              (State & EFI_HPC_STATE_INITIALIZED) != 0) {
-            *PaddedBusRange = (UINT8) ((UINT8) (BusRange) +*PaddedBusRange);
-          } else {
-            Status = PciAllocateBusNumber (PciDevice, *SubBusNumber, (UINT8) (BusRange), SubBusNumber);
-            if (EFI_ERROR (Status)) {
-              return Status;
+	if (!PcdGetBool(PcdPciPreserveBusNumbers)) {
+          if (FeaturePcdGet (PcdPciBusHotplugDeviceSupport) && BusPadding) {
+            //
+            // Ensure the device is enabled and initialized
+            //
+            if ((Attributes == EfiPaddingPciRootBridge) &&
+                (State & EFI_HPC_STATE_ENABLED) != 0    &&
+                (State & EFI_HPC_STATE_INITIALIZED) != 0) {
+              *PaddedBusRange = (UINT8) ((UINT8) (BusRange) +*PaddedBusRange);
+            } else {
+              Status = PciAllocateBusNumber (PciDevice, *SubBusNumber, (UINT8) (BusRange), SubBusNumber);
+              if (EFI_ERROR (Status)) {
+                return Status;
+              }
             }
           }
-        }
 
-        //
-        // Set the current maximum bus number under the PPB
-        //
-        Address = EFI_PCI_ADDRESS (StartBusNumber, Device, Func, PCI_BRIDGE_SUBORDINATE_BUS_REGISTER_OFFSET);
+          //
+          // Set the current maximum bus number under the PPB
+          //
+          Address = EFI_PCI_ADDRESS (StartBusNumber, Device, Func, PCI_BRIDGE_SUBORDINATE_BUS_REGISTER_OFFSET);
 
-        Status = PciRootBridgeIo->Pci.Write (
-                                        PciRootBridgeIo,
-                                        EfiPciWidthUint8,
-                                        Address,
-                                        1,
-                                        SubBusNumber
-                                        );
+          Status = PciRootBridgeIo->Pci.Write (
+                                          PciRootBridgeIo,
+                                          EfiPciWidthUint8,
+                                          Address,
+                                          1,
+                                          SubBusNumber
+                                          );
+	}
       } else  {
         //
         // It is device. Check PCI IOV for Bus reservation
         // Go through each function, just reserve the MAX ReservedBusNum for one device
         //
-        if (PcdGetBool (PcdSrIovSupport) && PciDevice->SrIovCapabilityOffset != 0) {
+        if (PcdGetBool (PcdSrIovSupport) && !PcdGetBool(PcdPciPreserveBusNumbers) &&
+	    PciDevice->SrIovCapabilityOffset != 0) {
           if (TempReservedBusNum < PciDevice->ReservedBusNum) {
 
             Status = PciAllocateBusNumber (PciDevice, *SubBusNumber, (UINT8) (PciDevice->ReservedBusNum - TempReservedBusNum), SubBusNumber);

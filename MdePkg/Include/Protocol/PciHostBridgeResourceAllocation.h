@@ -56,26 +56,39 @@ typedef struct _EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PROTOCOL EFI_PCI_HOST_BR
 #define EFI_PCI_HOST_BRIDGE_MEM64_DECODE   2
 
 ///
-/// A UINT64 value that contains the status of a PCI resource requested 
-/// in the Configuration parameter returned by GetProposedResources()
-/// The legal values are EFI_RESOURCE_SATISFIED and EFI_RESOURCE_NOT_SATISFIED
+/// If this bit is set, then the PCI Root Bridge doesn't support
+/// IO space
 ///
-typedef UINT64 EFI_RESOURCE_ALLOCATION_STATUS;
+#define EFI_PCI_HOST_BRIDGE_NO_IO_DECODE   4
+
+///
+/// The "Address Translation Offset" field of the ACPI descriptor
+/// returned by GetProposedResources() can contain either of these
+/// ranges of *unsigned* values:
+///
+///  EFI_RESOURCE_NONEXISTENT : The resource request cannot be satisfied
+///
+///  EFI_RESOURCE_LESS        : The resource wasn't satisified but a small
+///                             request could be
+///
+///  Value < EFI_RESOURCE_OFFSET_LIMIT
+///                           : An offset representing the translation from
+///                             PCI addresses to CPU addresses
+//
+#define EFI_RESOURCE_NONEXISTENT  0xFFFFFFFFFFFFFFFFULL
+#define EFI_RESOURCE_LESS         0xFFFFFFFFFFFFFFFEULL
+#define EFI_RESOURCE_OFFSET_LIMIT 0xFFFFFFFFFFFFFFF0ULL
+
+// Helper for internal use of PciBusDxe
+#define EFI_RESOURCE_SATISFIED    0
 
 ///
 /// The request of this resource type could be fulfilled.  Used in the 
 /// Configuration parameter returned by GetProposedResources() to identify
 /// a PCI resources request that can be satisfied.
 ///
-#define EFI_RESOURCE_SATISFIED      0x0000000000000000ULL
-
-///
-/// The request of this resource type could not be fulfilled for its
-/// absence in the host bridge resource pool.  Used in the Configuration parameter 
-/// returned by GetProposedResources() to identify a PCI resources request that
-/// can not be satisfied.
-///
-#define EFI_RESOURCE_NOT_SATISFIED  0xFFFFFFFFFFFFFFFFULL
+#define EFI_RESOURCE_IS_SATISFIED(Offset) \
+  (((UINT64)Offset) < EFI_RESOURCE_OFFSET_LIMIT)
 
 ///
 /// This  enum is used to specify the phase of the PCI enumaeration process.

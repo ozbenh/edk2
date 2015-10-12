@@ -19,6 +19,9 @@
 #include <Library/UefiApplicationEntryPoint.h>
 #include <Library/UefiBootServicesTableLib.h>
 
+#if defined (MDE_CPU_PPC64)
+#include <Library/PpcLib.h>
+#endif
 
 UINT64
 ReadTimestamp (
@@ -29,6 +32,8 @@ ReadTimestamp (
   return AsmReadTsc ();
 #elif defined (MDE_CPU_IPF)
   return AsmReadItc ();
+#elif defined (MDE_CPU_PPC64)
+  return mftb ();
 #else
 #error ReadTimestamp not supported for this architecture!
 #endif
@@ -262,12 +267,15 @@ UefiMain (
   EFI_STATUS                     Status;
   EFI_GRAPHICS_OUTPUT_PROTOCOL   *Gop;
 
+  DEBUG((EFI_D_INFO, "Hello World !\n"));
+
   Status = gBS->HandleProtocol (
                   gST->ConsoleOutHandle,
                   &gEfiGraphicsOutputProtocolGuid,
                   (VOID **) &Gop
                   );
   if (EFI_ERROR (Status)) {
+    DEBUG((EFI_D_INFO, "Can't find GOP: %r\n", Status));
     return Status;
   }
 
@@ -276,11 +284,14 @@ UefiMain (
              Gop->Mode->Info
              );
   if (EFI_ERROR (Status)) {
+    DEBUG((EFI_D_INFO, "Failed to configure: %r\n", Status));
     return Status;
   }
 
+  DEBUG((EFI_D_INFO, "Testing fills...\n"));
   TestFills ();
 
+  DEBUG((EFI_D_INFO, "Testing colors...\n"));
   TestColor ();
 
   return EFI_SUCCESS;

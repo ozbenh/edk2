@@ -54,7 +54,7 @@ LoadPeCoffImage (
   //
   // Allocate Memory for the image
   //
-  Buffer = AllocatePages (EFI_SIZE_TO_PAGES((UINT32)ImageContext.ImageSize));
+  Buffer = AllocateAlignedPages (EFI_SIZE_TO_PAGES((UINT32)ImageContext.ImageSize), ImageContext.SectionAlignment);
   ASSERT (Buffer != 0);
 
 

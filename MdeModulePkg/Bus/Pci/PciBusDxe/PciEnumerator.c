@@ -238,21 +238,25 @@ PciRootBridgeEnumerator (
   //
   StartBusNumber = (UINT8) (Configuration->AddrRangeMin);
 
-  //
-  // Initialize the subordinate bus number
-  //
-  SubBusNumber = StartBusNumber;
+  if (!PcdGetBool(PcdPciPreserveBusNumbers)) {
+    //
+    // Initialize the subordinate bus number
+    //
+    SubBusNumber = StartBusNumber;
+
+    //
+    // Reset all assigned PCI bus number
+    //
+    ResetAllPpbBusNumber (
+      RootBridgeDev,
+      StartBusNumber
+    );
+  } else {
+    SubBusNumber = (UINT8) (Configuration->AddrRangeMax);
+  }
 
   //
-  // Reset all assigned PCI bus number
-  //
-  ResetAllPpbBusNumber (
-    RootBridgeDev,
-    StartBusNumber
-  );
-
-  //
-  // Assign bus number
+  // Scan child busses
   //
   Status = PciScanBus (
             RootBridgeDev,
@@ -266,14 +270,16 @@ PciRootBridgeEnumerator (
   }
 
 
-  //
-  // Assign max bus number scanned
-  //
+  if (!PcdGetBool(PcdPciPreserveBusNumbers)) {
+    //
+    // Assign max bus number scanned
+    //
 
-  Status = PciAllocateBusNumber (RootBridgeDev, SubBusNumber, PaddedBusRange, &SubBusNumber);
-  if (EFI_ERROR (Status)) {
-    return Status;
-  }  
+    Status = PciAllocateBusNumber (RootBridgeDev, SubBusNumber, PaddedBusRange, &SubBusNumber);
+    if (EFI_ERROR (Status)) {
+      return Status;
+    }
+  }
 
   //
   // Find the bus range which contains the higest bus number, then returns the number of buses
@@ -547,7 +553,9 @@ DetermineRootBridgeAttributes (
 
   RootBridgeDev->Decodes |= EFI_BRIDGE_MEM32_DECODE_SUPPORTED;
   RootBridgeDev->Decodes |= EFI_BRIDGE_PMEM32_DECODE_SUPPORTED;
-  RootBridgeDev->Decodes |= EFI_BRIDGE_IO16_DECODE_SUPPORTED;
+  if ((Attributes & EFI_PCI_HOST_BRIDGE_NO_IO_DECODE) == 0) {
+    RootBridgeDev->Decodes |= EFI_BRIDGE_IO16_DECODE_SUPPORTED;
+  }
 
   return EFI_SUCCESS;
 }
@@ -1003,11 +1011,11 @@ PciHostBridgeAdjustAllocation (
 
   for (ResType = 0; ResType < 5; ResType++) {
 
-    if (ResStatus[ResType] == EFI_RESOURCE_SATISFIED) {
+    if (EFI_RESOURCE_IS_SATISFIED(ResStatus[ResType])) {
       continue;
     }
 
-    if (ResStatus[ResType] == EFI_RESOURCE_NOT_SATISFIED) {
+    if (ResStatus[ResType] == EFI_RESOURCE_NONEXISTENT) {
       //
       // Host bridge hasn't this resource type
       //
@@ -1357,7 +1365,7 @@ GetResourceBase (
     Ptr       = (EFI_ACPI_ADDRESS_SPACE_DESCRIPTOR *) Temp;
     ResStatus = Ptr->AddrTranslationOffset;
 
-    if (ResStatus == EFI_RESOURCE_SATISFIED) {
+    if (EFI_RESOURCE_IS_SATISFIED(ResStatus)) {
 
       switch (Ptr->ResType) {
 

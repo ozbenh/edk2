@@ -609,6 +609,69 @@ typedef struct {
   UINT64  FAR;  // Fault Address Register
 } EFI_SYSTEM_CONTEXT_AARCH64;
 
+///
+///  PPC64 processor exception types.
+///
+#define EXCEPT_PPC64_SYS_RESET         0
+#define EXCEPT_PPC64_MACHINE_CHECK     1
+#define EXCEPT_PPC64_DATA_STORAGE      2
+#define EXCEPT_PPC64_DATA_SEGMENT      3
+#define EXCEPT_PPC64_INST_STORAGE      4
+#define EXCEPT_PPC64_INST_SEGMENT      5
+#define EXCEPT_PPC64_EXTERNAL_IRQ      6
+#define EXCEPT_PPC64_ALIGNMENT         7
+#define EXCEPT_PPC64_PROGRAM_CHECK     8
+#define EXCEPT_PPC64_FP_UNAVAILABLE    9
+#define EXCEPT_PPC64_DECREMENTER       10
+#define EXCEPT_PPC64_HV_DECREMENTER    11
+#define EXCEPT_PPC64_SUP_DBELL         12
+#define EXCEPT_PPC64_TRAP_B            13
+#define EXCEPT_PPC64_SYSTEM_CALL       14
+#define EXCEPT_PPC64_SINGLE_STEP       15
+#define EXCEPT_PPC64_H_DATA_STORAGE    16
+#define EXCEPT_PPC64_H_INST_STORAGE    17
+#define EXCEPT_PPC64_H_EMU_ASSIST      18
+#define EXCEPT_PPC64_HW_MAINT          19
+#define EXCEPT_PPC64_HV_DBELL          20
+#define EXCEPT_PPC64_PERFMON           21
+#define EXCEPT_PPC64_VMX_UNAVAILABLE   22
+#define EXCEPT_PPC64_VSX_UNAVAILABLE   23
+#define EXCEPT_PPC64_FACIL_UNAVAILABLE 24
+#define EXCEPT_PPC64_HVFAC_UNAVAILABLE 25
+#define EXCEPT_PPC64_INST_BKPT	       26
+#define EXCEPT_PPC64_DENORM_ASSIST     27
+#define EXCEPT_PPC64_VMX_ASSIST        28
+#define EXCEPT_PPC64_UNSUPPORTED       29
+#define EXCEPT_PPC64_COUNT             30
+
+
+// WARNING: The definitions below need to match the assembly
+// offsets in our CpuDxe's ExceptionHandler.h.
+// TODO: Autogenerate the assembly bits
+
+// RedZone to leave on the stack
+#define PPC64_REDZONE_SIZE             288
+
+typedef struct {
+  UINT64  Frame[4];
+  UINT64  GPR[32];
+  UINT64  FPR[32];
+  UINT32  ExNum;
+  UINT32  CR;
+  UINT64  LR;
+  UINT64  CTR;
+  UINT64  XER;
+  UINT64  CFAR;
+  UINT64  PC;
+  UINT64  MSR;
+  UINT64  DAR;
+  UINT64  DSISR;
+  UINT64  PAD;
+  UINT64  VR[32][2];  // TODO
+  UINT64  VX[32];     // TODO
+  UINT64  RedZone[PPC64_REDZONE_SIZE/8];
+} EFI_SYSTEM_CONTEXT_PPC64;
+
 
 ///
 /// Universal EFI_SYSTEM_CONTEXT definition.
@@ -620,6 +683,7 @@ typedef union {
   EFI_SYSTEM_CONTEXT_IPF  *SystemContextIpf;
   EFI_SYSTEM_CONTEXT_ARM  *SystemContextArm;
   EFI_SYSTEM_CONTEXT_AARCH64  *SystemContextAArch64;
+  EFI_SYSTEM_CONTEXT_PPC64 *SystemContextPpc64;
 } EFI_SYSTEM_CONTEXT;
 
 //
@@ -661,7 +725,8 @@ typedef enum {
   IsaIpf  = IMAGE_FILE_MACHINE_IA64,           ///< 0x0200
   IsaEbc  = IMAGE_FILE_MACHINE_EBC,            ///< 0x0EBC
   IsaArm  = IMAGE_FILE_MACHINE_ARMTHUMB_MIXED, ///< 0x01c2
-  IsaAArch64  = IMAGE_FILE_MACHINE_ARM64       ///< 0xAA64
+  IsaAArch64  = IMAGE_FILE_MACHINE_ARM64,      ///< 0xAA64
+  IsaPpc64  = IMAGE_FILE_MACHINE_PPC64         ///< 1f1
 } EFI_INSTRUCTION_SET_ARCHITECTURE;
 
 

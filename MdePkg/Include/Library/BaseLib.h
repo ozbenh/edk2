@@ -178,6 +178,40 @@ typedef struct {
 
 #endif  // defined (MDE_CPU_AARCH64)
 
+#if defined (MDE_CPU_PPC64)
+typedef struct {
+  UINT64    LR;	 /* 0x000 */
+  UINT64    R1;  /* 0x008 */
+  UINT64    R2;  /* 0x010 */
+  UINT64    CR;  /* 0x018 */
+  UINT64    R13; /* 0x020 */
+  UINT64    R14; /* 0x028 */
+  UINT64    R15; /* 0x030 */
+  UINT64    R16; /* 0x038 */ 
+  UINT64    R17; /* 0x040 */
+  UINT64    R18; /* 0x048 */
+  UINT64    R19; /* 0x050 */
+  UINT64    R20; /* 0x058 */
+  UINT64    R21; /* 0x060 */
+  UINT64    R22; /* 0x068 */
+  UINT64    R23; /* 0x070 */
+  UINT64    R24; /* 0x078 */
+  UINT64    R25; /* 0x080 */
+  UINT64    R26; /* 0x088 */
+  UINT64    R27; /* 0x090 */
+  UINT64    R29; /* 0x098 */
+  UINT64    R30; /* 0x0a0 */
+  UINT64    R31; /* 0x0a8 */
+  UINT64    R32; /* 0x0b0 */
+  UINT64    FPR[18]; // F14..F31
+  UINT64    VSR[2*12]; // V20..V31
+} BASE_LIBRARY_JUMP_BUFFER;
+
+// We require full alignment for VRs */
+#define BASE_LIBRARY_JUMP_BUFFER_ALIGNMENT 16
+
+#endif  // defined (MDE_CPU_AARCH64)
+
 
 //
 // String Services
@@ -185,7 +219,7 @@ typedef struct {
 
 
 /**
-  Returns the length of a Null-terminated Unicode string.
+  Returns the length of a Nullemacs -terminated Unicode string.
 
   If String is not aligned on a 16-bit boundary, then ASSERT().
 

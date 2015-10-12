@@ -172,6 +172,10 @@
   # ISP1761 USB OTG Controller
   gEmbeddedTokenSpaceGuid.PcdIsp1761BaseAddress|0|UINT64|0x00000021
 
+[PcdsFixedAtBuild.PPC64]
+  gEmbeddedTokenSpaceGuid.PcdPrePiCpuMemorySize|52|UINT8|0x00000010
+  gEmbeddedTokenSpaceGuid.PcdPrePiCpuIoSize|0|UINT8|0x00000011
+
 [PcdsFixedAtBuild.IA32]
   gEmbeddedTokenSpaceGuid.PcdPrePiCpuMemorySize|36|UINT8|0x00000010
   gEmbeddedTokenSpaceGuid.PcdPrePiCpuIoSize|16|UINT8|0x00000011

@@ -279,9 +279,27 @@ QemuVideoControllerDriverStart (
   if (Private->Variant == QEMU_VIDEO_BOCHS_MMIO) {
     EFI_ACPI_ADDRESS_SPACE_DESCRIPTOR *MmioDesc;
 
+    //
+    // Check if main BAR is 64-bit
+    //
     Status = Private->PciIo->GetBarAttributes (
                         Private->PciIo,
-                        PCI_BAR_IDX2,
+                        PCI_BAR_IDX0,
+                        NULL,
+                        (VOID**) &MmioDesc
+                        );
+    if (EFI_ERROR (Status) ||
+          MmioDesc->ResType != ACPI_ADDRESS_SPACE_TYPE_MEM ||
+          MmioDesc->AddrSpaceGranularity == 32) {
+        Private->MmioBarIdx = PCI_BAR_IDX2;
+    } else {
+        Private->MmioBarIdx = PCI_BAR_IDX1;
+    }
+		DEBUG((EFI_D_INFO, "BAR0 Req status : %d\n", Status));
+		DEBUG((EFI_D_INFO, "BAR0 Granularity: %d\n", MmioDesc->AddrSpaceGranularity));
+    Status = Private->PciIo->GetBarAttributes (
+                        Private->PciIo,
+                        Private->MmioBarIdx,
                         NULL,
                         (VOID**) &MmioDesc
                         );
@@ -292,6 +310,9 @@ QemuVideoControllerDriverStart (
     } else {
       DEBUG ((EFI_D_INFO, "QemuVideo: Using mmio bar @ 0x%lx\n",
               MmioDesc->AddrRangeMin));
+
+      // XXX Check PCI revision ID and Qext size
+      QExtWrite (Private, PCI_VGA_QEXT_REG_BYTEORDER, PCI_VGA_QEXT_LITTLE_ENDIAN);
     }
 
     if (!EFI_ERROR (Status)) {
@@ -846,7 +867,7 @@ BochsWrite (
     Status = Private->PciIo->Mem.Write (
         Private->PciIo,
         EfiPciIoWidthUint16,
-        PCI_BAR_IDX2,
+        Private->MmioBarIdx,
         0x500 + (Reg << 1),
         1,
         &Data
@@ -871,7 +892,7 @@ BochsRead (
     Status = Private->PciIo->Mem.Read (
         Private->PciIo,
         EfiPciIoWidthUint16,
-        PCI_BAR_IDX2,
+        Private->MmioBarIdx,
         0x500 + (Reg << 1),
         1,
         &Data
@@ -897,7 +918,7 @@ VgaOutb (
     Status = Private->PciIo->Mem.Write (
         Private->PciIo,
         EfiPciIoWidthUint8,
-        PCI_BAR_IDX2,
+        Private->MmioBarIdx,
         0x400 - 0x3c0 + Reg,
         1,
         &Data
@@ -906,6 +927,49 @@ VgaOutb (
   } else {
     outb (Private, Reg, Data);
   }
+}
+
+VOID
+QExtWrite (
+  QEMU_VIDEO_PRIVATE_DATA  *Private,
+  UINT16                   Reg,
+  UINT32                   Data
+  )
+{
+  EFI_STATUS   Status;
+
+  ASSERT (Private->Variant == QEMU_VIDEO_BOCHS_MMIO);
+	Status = Private->PciIo->Mem.Write (
+        Private->PciIo,
+        EfiPciIoWidthUint32,
+        Private->MmioBarIdx,
+        0x600 + (Reg << 2),
+        1,
+        &Data
+        );
+  ASSERT_EFI_ERROR (Status);
+}
+
+UINT32
+QExtRead (
+  QEMU_VIDEO_PRIVATE_DATA  *Private,
+  UINT16                   Reg
+  )
+{
+  EFI_STATUS   Status;
+  UINT32       Data;
+
+  ASSERT (Private->Variant == QEMU_VIDEO_BOCHS_MMIO);
+	Status = Private->PciIo->Mem.Read (
+        Private->PciIo,
+        EfiPciIoWidthUint32,
+        Private->MmioBarIdx,
+        0x600 + (Reg << 2),
+        1,
+        &Data
+        );
+  ASSERT_EFI_ERROR (Status);
+  return Data;
 }
 
 VOID

@@ -89,7 +89,8 @@ GLOBAL_REMOVE_IF_UNREFERENCED MACHINE_TYPE_INFO  mMachineTypeInfo[] = {
   {EFI_IMAGE_MACHINE_IA32,           L"IA32"},
   {EFI_IMAGE_MACHINE_IA64,           L"IA64"},
   {EFI_IMAGE_MACHINE_X64,            L"X64"},
-  {EFI_IMAGE_MACHINE_ARMTHUMB_MIXED, L"ARM"}
+  {EFI_IMAGE_MACHINE_ARMTHUMB_MIXED, L"ARM"},
+  {EFI_IMAGE_MACHINE_PPC64,          L"PPC64"}
 };
 
 UINT16 mDxeCoreImageMachineType = 0;
@@ -478,8 +479,8 @@ CoreLoadPeImage (
       // The PE/COFF loader can support loading image types that can be executed.
       // If we loaded an image type that we can not execute return EFI_UNSUPORTED.
       //
-      DEBUG ((EFI_D_ERROR, "Image type %s can't be loaded ", GetMachineTypeName(Image->ImageContext.Machine)));
-      DEBUG ((EFI_D_ERROR, "on %s UEFI system.\n", GetMachineTypeName(mDxeCoreImageMachineType)));
+      DEBUG ((EFI_D_ERROR, "Image type %s (%d) can't be loaded ", GetMachineTypeName(Image->ImageContext.Machine),Image->ImageContext.Machine));
+      DEBUG ((EFI_D_ERROR, "on %s (%d) UEFI system.\n", GetMachineTypeName(mDxeCoreImageMachineType), mDxeCoreImageMachineType));
       return EFI_UNSUPPORTED;
     }
   }

@@ -1290,7 +1290,13 @@
   # @Prompt Disable full PCI enumeration.
   gEfiMdeModulePkgTokenSpaceGuid.PcdPciDisableBusEnumeration|FALSE|BOOLEAN|0x10000048
 
-  ## Disk I/O - Number of Data Buffer block.
+  ## Indicates that PCI enumeration should preserve existing bus numbers <BR><BR>
+  #   TRUE  - Bus numbers should be preserved.<BR>
+  #   FALSE - Bus numbers can be reassigned.<BR>
+  # @Prompt Preserve PCI bus numbers.
+  gEfiMdeModulePkgTokenSpaceGuid.PcdPciPreserveBusNumbers|FALSE|BOOLEAN|0x10000049
+
+## Disk I/O - Number of Data Buffer block.
   # Define the size in block of the pre-allocated buffer. It provide better
   # performance for large Disk I/O requests.
   # @Prompt Disk I/O - Number of Data Buffer block.

@@ -1,0 +1,70 @@
+#/** @file
+#  Pre PeiCore - Hand-off to PEI Core in Normal World
+#
+#  Copyright (c) 2011, ARM Limited. All rights reserved.
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = PrePei
+  FILE_GUID                      = a419c980-7355-4e74-aabb-52421956228b
+  MODULE_TYPE                    = SEC
+  VALID_ARCHITECTURES            = PPC64
+  VERSION_STRING                 = 1.0
+
+[Sources.common]
+  EntryPoint.S
+  PrePei.c
+  MemoryInit.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  PpcPkg/PpcPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  PpcPnvPlatformPkg/PpcPnvPlatformPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  DebugLib
+  PpcLib
+  PnvOpalLib
+  PrePiLib
+  MemoryAllocationLib
+  HobLib
+  PrePiHobListPointerLib
+  LzmaDecompressLib
+  FdtLib
+
+[Ppis]
+
+[FeaturePcd]
+  gEmbeddedTokenSpaceGuid.PcdPrePiProduceMemoryTypeInformationHob
+
+[FixedPcd]
+  gPpcPnvTokenSpaceGuid.PcdFdSize
+  gPpcPnvTokenSpaceGuid.PcdFvSize
+
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString
+
+  gEmbeddedTokenSpaceGuid.PcdPrePiCpuMemorySize
+  gEmbeddedTokenSpaceGuid.PcdPrePiCpuIoSize
+
+[Pcd]
+  gPpcPnvTokenSpaceGuid.PcdFdBaseAddress
+  gPpcPnvTokenSpaceGuid.PcdFvBaseAddress
+
+[Guids]
+  gFdtHobGuid
+
+[BuildOptions]
+  GCC:*_*_PPC64_DLINK2_FLAGS == -T $(MODULE_DIR)/PrePi-PIE.lds 

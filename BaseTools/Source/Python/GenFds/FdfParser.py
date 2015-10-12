@@ -3393,7 +3393,7 @@ class FdfParser:
             raise Warning("expected '.'", self.FileName, self.CurrentLineNumber)
 
         Arch = self.__SkippedChars.rstrip(".")
-        if Arch.upper() not in ("IA32", "X64", "IPF", "EBC", "ARM", "AARCH64", "COMMON"):
+        if Arch.upper() not in ("IA32", "X64", "IPF", "EBC", "ARM", "AARCH64", "PPC64",  "COMMON"):
             raise Warning("Unknown Arch '%s'" % Arch, self.FileName, self.CurrentLineNumber)
 
         ModuleType = self.__GetModuleType()
@@ -3971,7 +3971,7 @@ class FdfParser:
             raise Warning("expected '.'", self.FileName, self.CurrentLineNumber)
 
         Arch = self.__SkippedChars.rstrip(".").upper()
-        if Arch not in ("IA32", "X64", "IPF", "ARM", "AARCH64"):
+        if Arch not in ("IA32", "X64", "IPF", "ARM", "AARCH64", "PPC64"):
             raise Warning("Unknown Arch '%s'" % Arch, self.FileName, self.CurrentLineNumber)
 
         if not self.__GetNextWord():
@@ -3985,7 +3985,7 @@ class FdfParser:
         if self.__IsToken(","):
             if not self.__GetNextWord():
                 raise Warning("expected Arch list", self.FileName, self.CurrentLineNumber)
-            if self.__Token.upper() not in ("IA32", "X64", "IPF", "ARM", "AARCH64"):
+            if self.__Token.upper() not in ("IA32", "X64", "IPF", "ARM", "AARCH64", "PPC64"):
                 raise Warning("Unknown Arch '%s'" % self.__Token, self.FileName, self.CurrentLineNumber)
             VtfObj.ArchList = self.__Token.upper()
 

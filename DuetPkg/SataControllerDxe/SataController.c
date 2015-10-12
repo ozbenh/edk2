@@ -455,6 +455,13 @@ SataControllerStart (
     //   NPS is 0's based value indicating the maximum number of ports supported by the HBA silicon.
     //   A maximum of 32 ports can be supported. A value of '0h', indicating one port, is the minimum requirement.
     //
+    Status = PciIo->Attributes (
+                      PciIo,
+                      EfiPciIoAttributeOperationEnable,
+                      EFI_PCI_IO_ATTRIBUTE_MEMORY,
+                      NULL
+                      );
+    ASSERT_EFI_ERROR (Status);
     Data32 = AhciReadReg (PciIo, R_AHCI_CAP);
     SataPrivateData->IdeInit.ChannelCount = (UINT8) ((Data32 & B_AHCI_CAP_NPS) + 1);
     SataPrivateData->DeviceCount = AHCI_MAX_DEVICES;

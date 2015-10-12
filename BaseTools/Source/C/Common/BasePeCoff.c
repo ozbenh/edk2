@@ -188,7 +188,8 @@ Returns:
       ImageContext->Machine != EFI_IMAGE_MACHINE_X64  && \
       ImageContext->Machine != EFI_IMAGE_MACHINE_ARMT && \
       ImageContext->Machine != EFI_IMAGE_MACHINE_EBC  && \
-      ImageContext->Machine != EFI_IMAGE_MACHINE_AARCH64) {
+      ImageContext->Machine != EFI_IMAGE_MACHINE_AARCH64 && \
+      ImageContext->Machine != EFI_IMAGE_MACHINE_PPC64) {
     if (ImageContext->Machine == IMAGE_FILE_MACHINE_ARM) {
       //
       // There are two types of ARM images. Pure ARM and ARM/Thumb. 

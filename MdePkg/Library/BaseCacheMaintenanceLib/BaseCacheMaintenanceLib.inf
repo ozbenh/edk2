@@ -28,7 +28,7 @@
 
 
 #
-#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC ARM AARCH64
+#  VALID_ARCHITECTURES           = IA32 X64 IPF EBC ARM AARCH64 PPC64
 #
 
 [Sources.IA32]
@@ -48,6 +48,9 @@
 
 [Sources.AARCH64]
   ArmCache.c
+
+[Sources.PPC64]
+  Ppc64Cache.c
 
 [Packages]
   MdePkg/MdePkg.dec

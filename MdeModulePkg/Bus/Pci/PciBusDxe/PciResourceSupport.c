@@ -1034,6 +1034,7 @@ DegradeResource (
   IN PCI_RESOURCE_NODE *PMem64Node
   )
 {
+#if 0
   PCI_IO_DEVICE        *Temp;
   LIST_ENTRY           *ChildDeviceLink;
   LIST_ENTRY           *ChildNodeLink;
@@ -1079,6 +1080,7 @@ DegradeResource (
     }
     ChildDeviceLink = ChildDeviceLink->ForwardLink;
   }
+#endif
 
   //
   // If firmware is in 32-bit mode,

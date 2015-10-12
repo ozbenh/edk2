@@ -26,7 +26,7 @@
 
 
 #
-#  VALID_ARCHITECTURES           = ARM AARCH64
+#  VALID_ARCHITECTURES           = ARM AARCH64 PPC64
 #
 
 [Sources]

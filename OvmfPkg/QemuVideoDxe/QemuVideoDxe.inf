@@ -53,7 +53,7 @@
   DebugLib
   DevicePathLib
   MemoryAllocationLib
-  PciLib
+#  PciLib
   PrintLib
   TimerLib
   UefiBootServicesTableLib

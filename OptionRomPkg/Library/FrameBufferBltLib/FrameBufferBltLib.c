@@ -311,6 +311,8 @@ BltLibVideoFill (
     BltMemDst = (VOID*) (mBltLibFrameBuffer + Offset);
     SizeInBytes = WidthInBytes * Height;
     if (SizeInBytes >= 8) {
+      if (BltMemDst == NULL)
+	      DEBUG((EFI_D_ERROR, "FOo1"));
       SetMem32 (BltMemDst, SizeInBytes & ~3, (UINT32) WideFill);
       SizeInBytes = SizeInBytes & 3;
     }

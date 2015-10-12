@@ -1744,6 +1744,62 @@ PciIoAttributes (
 }
 
 /**
+  Finds the root bridge resource corresponding to the BAR whose address
+  space descritpor is passes as an argument and copy the translation offset
+  over from it into the BAR descriptor
+
+  @param  RootBridge            A pointer to the EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL instance.
+  @param  BarAddressSpace       A pointer to the ACPI 2.0 resource descriptors that describe the current
+                                configuration of this BAR of the PCI controller that is to be updated.
+
+  @retval EFI_SUCCESS           The descriptor was successfully updated.
+  @retval EFI_UNSUPPORTED       No resource in the root bridge matches the BAR region
+  @retval EFI_OUT_OF_RESOURCES  There are not enough resources available to allocate
+                                Resources.
+
+**/
+STATIC
+EFI_STATUS
+PciBarUpdateTranslationOffset(
+  IN EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL       *RootBridge,
+  IN OUT EFI_ACPI_ADDRESS_SPACE_DESCRIPTOR *BarAddressSpace)
+{
+  EFI_STATUS                         Status;
+  EFI_ACPI_ADDRESS_SPACE_DESCRIPTOR  *RootDescriptors;
+  EFI_ACPI_ADDRESS_SPACE_DESCRIPTOR  *Desc;
+  UINT8                              *Temp;
+
+  Status = RootBridge->Configuration (RootBridge, (VOID **) &RootDescriptors);
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  Temp = (UINT8 *) RootDescriptors;
+  while (*Temp == ACPI_ADDRESS_SPACE_DESCRIPTOR) {
+    Desc = (EFI_ACPI_ADDRESS_SPACE_DESCRIPTOR *) Temp;
+
+    //
+    // Do we have the right type of descriptor ?
+    //
+    if (Desc->ResType == BarAddressSpace->ResType) {
+      //
+      // Check if the BAR base fits
+      //
+      if (BarAddressSpace->AddrRangeMin >= Desc->AddrRangeMin &&
+          BarAddressSpace->AddrRangeMin < (Desc->AddrRangeMin + Desc->AddrLen)) {
+        //
+        // Found it, update offset and return
+        //
+        BarAddressSpace->AddrTranslationOffset = Desc->AddrTranslationOffset;
+        return EFI_SUCCESS;
+      }
+    }
+    Temp += sizeof (EFI_ACPI_ADDRESS_SPACE_DESCRIPTOR);
+  }
+  return EFI_UNSUPPORTED;
+}
+
+/**
   Gets the attributes that this PCI controller supports setting on a BAR using
   SetBarAttributes(), and retrieves the list of resource descriptors for a BAR.
 
@@ -1778,6 +1834,7 @@ PciIoGetBarAttributes (
   PCI_IO_DEVICE                     *PciIoDevice;
   EFI_ACPI_ADDRESS_SPACE_DESCRIPTOR *AddressSpace;
   EFI_ACPI_END_TAG_DESCRIPTOR       *End;
+  EFI_STATUS                        Status;
 
   PciIoDevice = PCI_IO_DEVICE_FROM_PCI_IO_THIS (This);
 
@@ -1875,6 +1932,15 @@ PciIoGetBarAttributes (
 
     default:
       break;
+    }
+
+    //
+    // Update the AddrTranslationOffset field
+    //
+    Status = PciBarUpdateTranslationOffset(PciIoDevice->PciRootBridgeIo, AddressSpace);
+    if (EFI_ERROR (Status)) {
+      FreePool(AddressSpace);
+      return Status;
     }
 
     //

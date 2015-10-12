@@ -2074,7 +2074,10 @@ CoreInitializeMemoryServices (
   // Cache the PHIT HOB for later use
   //
   PhitHob = Hob.HandoffInformationTable;
-  
+  DEBUG((DEBUG_INIT, "PhitHob->EfiFreeMemoryBottom = 0x%llx\n", PhitHob->EfiFreeMemoryBottom));
+  DEBUG((DEBUG_INIT, "PhitHob->EfiFreeMemoryTop    = 0x%llx\n", PhitHob->EfiFreeMemoryTop));
+  DEBUG((DEBUG_INIT, "PhitHob->EfiMemoryTop        = 0x%llx\n", PhitHob->EfiMemoryTop));
+ 
   if (PcdGet64(PcdLoadModuleAtFixAddressEnable) != 0) {
   	ReservedCodePageNumber = PcdGet32(PcdLoadFixAddressRuntimeCodePageNumber);
   	ReservedCodePageNumber += PcdGet32(PcdLoadFixAddressBootTimeCodePageNumber);
@@ -2121,6 +2124,10 @@ CoreInitializeMemoryServices (
       continue;
     }
 
+    DEBUG((DEBUG_INIT, "MemoryHob:\n"));
+    DEBUG((DEBUG_INIT, "  Start  = 0x%llx\n", ResourceHob->PhysicalStart));
+    DEBUG((DEBUG_INIT, "  Length = 0x%llx\n", ResourceHob->ResourceLength));
+
     //
     // Skip Resource Descriptor HOBs that do not contain the PHIT range EfiFreeMemoryBottom..EfiFreeMemoryTop
     //
@@ -2138,11 +2145,14 @@ CoreInitializeMemoryServices (
     Found = TRUE;
 
     //
-    // Compute range between PHIT EfiFreeMemoryTop and the end of the Resource Descriptor HOB
+    // Compute range between PHIT EfiMemoryTop and the end of the Resource Descriptor HOB
     //
     Attributes  = PhitResourceHob->ResourceAttribute;
     BaseAddress = PageAlignAddress (PhitHob->EfiMemoryTop);
     Length      = PageAlignLength  (ResourceHob->PhysicalStart + ResourceHob->ResourceLength - BaseAddress);
+    DEBUG((DEBUG_INIT, "Found PHIT HOB\n"));
+    DEBUG((DEBUG_INIT, "Tentative boot area: BaseAddress=%lx, Length=%lx\n", BaseAddress, Length));
+
     if (Length < MINIMUM_INITIAL_MEMORY_SIZE) {
       //
       // If that range is not large enough to intialize the DXE Core, then 
@@ -2150,6 +2160,7 @@ CoreInitializeMemoryServices (
       //
       BaseAddress = PageAlignAddress (PhitHob->EfiFreeMemoryBottom);
       Length      = PageAlignLength  (PhitHob->EfiFreeMemoryTop - BaseAddress);
+      DEBUG((DEBUG_INIT, "FIXING ! BaseAddress=%lx, Length=%lx\n", BaseAddress, Length));
       if (Length < MINIMUM_INITIAL_MEMORY_SIZE) {
         //
         // If that range is not large enough to intialize the DXE Core, then 
@@ -2157,6 +2168,7 @@ CoreInitializeMemoryServices (
         //
         BaseAddress = PageAlignAddress (ResourceHob->PhysicalStart);
         Length      = PageAlignLength  ((UINT64)((UINTN)*HobStart - BaseAddress));
+	DEBUG((DEBUG_INIT, "FIXING2 ! BaseAddress=%lx, Length=%lx\n", BaseAddress, Length));
       }
     }
     break;
@@ -2224,6 +2236,9 @@ CoreInitializeMemoryServices (
     MaxMemoryLength      = TestedMemoryLength;
     MaxMemoryAttributes  = ResourceHob->ResourceAttribute; 
     HighAddress          = ResourceHob->PhysicalStart;
+
+    DEBUG((DEBUG_INIT, "Another HOB ! BaseAddress=%lx, Length=%lx\n",
+	   MaxMemoryBaseAddress, MaxMemoryLength));
   }
 
   //

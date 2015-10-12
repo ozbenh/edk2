@@ -956,7 +956,7 @@ BmFindUsbDevice (
   EFI_DEVICE_PATH_PROTOCOL  *UsbIoDevicePath;
   EFI_USB_IO_PROTOCOL       *UsbIo;
   UINTN                     Index;
-  UINTN                     UsbIoDevicePathSize;
+  //UINTN                     UsbIoDevicePathSize;
   BOOLEAN                   Matched;
 
   ASSERT (UsbIoHandleCount != NULL);  
@@ -988,7 +988,7 @@ BmFindUsbDevice (
     UsbIoDevicePath = DevicePathFromHandle (UsbIoHandles[Index]);
     Matched         = FALSE;
     if (!EFI_ERROR (Status) && (UsbIoDevicePath != NULL)) {
-      UsbIoDevicePathSize = GetDevicePathSize (UsbIoDevicePath) - END_DEVICE_PATH_LENGTH;
+      //UsbIoDevicePathSize = GetDevicePathSize (UsbIoDevicePath) - END_DEVICE_PATH_LENGTH;
 
       //
       // Compare starting part of UsbIoHandle's device path with ParentDevicePath.
@@ -1619,7 +1619,11 @@ EfiBootManagerBoot (
   //
   Node   = BootOption->FilePath;
   Status = gBS->LocateDevicePath (&gEfiFirmwareVolume2ProtocolGuid, &Node, &FvHandle);
-  if (!EFI_ERROR (Status) && CompareGuid (
+  DEBUG ((EFI_D_INFO, "Node: %p egn...: %p PCD: %p\n", Node,
+        EfiGetNameGuidFromFwVolDevicePathNode ((CONST MEDIA_FW_VOL_FILEPATH_DEVICE_PATH *) Node),
+	  PcdGetPtr (PcdBootManagerMenuFile), BootOption->FilePath));
+  if (!EFI_ERROR (Status) && EfiGetNameGuidFromFwVolDevicePathNode ((CONST MEDIA_FW_VOL_FILEPATH_DEVICE_PATH *) Node) &&
+      CompareGuid (
         EfiGetNameGuidFromFwVolDevicePathNode ((CONST MEDIA_FW_VOL_FILEPATH_DEVICE_PATH *) Node),
         PcdGetPtr (PcdBootManagerMenuFile)
         )) {

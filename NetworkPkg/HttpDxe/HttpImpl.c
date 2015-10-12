@@ -226,7 +226,7 @@ EfiHttpRequest (
   CHAR8                         *Url;
   CHAR16                        *HostNameStr;
   HTTP_TOKEN_WRAP               *Wrap;
-  HTTP_TCP_TOKEN_WRAP           *TcpWrap;
+  //HTTP_TCP_TOKEN_WRAP           *TcpWrap;
 
   if ((This == NULL) || (Token == NULL)) {
     return EFI_INVALID_PARAMETER;
@@ -277,7 +277,7 @@ EfiHttpRequest (
   HostName    = NULL;
   Wrap        = NULL;
   HostNameStr = NULL;
-  TcpWrap     = NULL;
+  //TcpWrap     = NULL;
 
   //
   // Parse the URI of the remote host.

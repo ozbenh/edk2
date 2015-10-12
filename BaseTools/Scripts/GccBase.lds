@@ -28,7 +28,7 @@ SECTIONS {
   .text : ALIGN(CONSTANT(COMMONPAGESIZE)) {
     *(.text .text.* .stub .gnu.linkonce.t.*)
     *(.rodata .rodata.* .gnu.linkonce.r.*)
-    *(.got .got.*)
+    *(.toc .got .got.*)
 
     /*
      * The contents of AutoGen.c files are constant from the POV of the program,
@@ -49,11 +49,11 @@ SECTIONS {
     *(.bss .bss.* *COM*)
   }
 
-  .eh_frame ALIGN(CONSTANT(COMMONPAGESIZE)) : {
+  .eh_frame ALIGN(CONSTANT(COMMONPAGESIZE)) : ALIGN(CONSTANT(COMMONPAGESIZE)) {
     KEEP (*(.eh_frame))
   }
 
-  .rela ALIGN(CONSTANT(COMMONPAGESIZE)) : {
+  .rela ALIGN(CONSTANT(COMMONPAGESIZE)) : ALIGN(CONSTANT(COMMONPAGESIZE)) {
     *(.rela .rela.*)
   }
 

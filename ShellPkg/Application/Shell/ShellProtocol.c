@@ -453,9 +453,7 @@ EfiShellGetFilePathFromDevicePath(
         //
         if ((DevicePathType(&FilePath->Header) != MEDIA_DEVICE_PATH) ||
             (DevicePathSubType(&FilePath->Header) != MEDIA_FILEPATH_DP)) {
-          FreePool(PathForReturn);
-          PathForReturn = NULL;
-          ASSERT(FALSE);
+	  PathForReturn = StrnCatGrow(&PathForReturn, &PathSize, L"\\?", 2);
         } else {
           //
           // append the path part onto the filepath.
